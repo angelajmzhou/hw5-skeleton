@@ -1,0 +1,41 @@
+intel syntax: op dest, src
+register: register name
+bit width: implied by register
+immediates: just number
+memory location [....]
+binary ops: combine source and destination, write result into dest
+memory addresses one register long (8)
+structure packing --> explicit types
+rsp: stack pointer
+rax for multiply and divide (implicit source/dest)
+rbp: frame pointer(callee saved)
+imms are 8,16,32b long, need to bitshift fro 64b
+[reg + immediate] OR [reg + const*reg2 + immediate] (AKA array access)
+cmp a, b (computes (a - b)), ignores result, sets flags
+test a, b computes (a&b), ignores result, sets flags
+sets flags for cmov and jump
+
+8 16bit registers: ax bx cx dx si di sp bp 
+
+NOT THE SAME00 some instruction only work on some register, like
+mul src: multiplies src by contents in ax, write results into ax (lower) and dx (higher)
+ names also indicate bith width of operations. 
+
+two arg operations: one argument any type, other is a memory location
+
+push arg: decrement sp, store argument on stack
+pop arg: takes contents off top of stack and load into reg/mem location, increment stack. 
+
+we are using 64b x86!! : 
+first 6 arguments passed in: rdi, rsi, rdx, rcx, r8, r9
+- beyond that, placed on stack: 
+return value placed on stack: 
+
+call used to invoke fcn: label or register (for pointers to functions)
+- decrements rsp by 8
+stores return address (rip) at [rsp]
+transfers control flow to the target address/label
+
+ret does opposite: load rip from [rsp]
+increment rsp by 8
+transfer control flro to rip address
