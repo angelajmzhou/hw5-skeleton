@@ -1,17 +1,17 @@
 
 /*
  * This is so the C preprocessor does not try to include multiple copies
- * of the header file if someone uses multiple //include directives.
+ * of the header file if someone uses multiple #include directives.
  */
-//ifndef _HASHTABLE_H_
-//define _HASHTABLE_H_
-//include <stdint.h>
+#ifndef _HASHTABLE_H_
+#define _HASHTABLE_H_
+#include <stdint.h>
 
 
 
-//ifndef NULL
-//define NULL ((void *)0)
-//endif
+#ifndef NULL
+#define NULL ((void *)0)
+#endif
 
 /*
  * This header file defines an interface to a generic hashtable.
@@ -46,4 +46,4 @@ extern void insertData(HashTable *table, void *key, void *data);
 
 extern void *findData(HashTable *table, void *key);
 
-//endif
+#endif

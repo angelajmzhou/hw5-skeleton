@@ -1,8 +1,8 @@
-//include <stdio.h>
-//include <stdlib.h>
-//include "hashtable.h"
-//include <string.h>
-//include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "hashtable.h"
+#include <string.h>
+#include <assert.h>
 
 uint64_t strhash(void *s){
   return 23098;

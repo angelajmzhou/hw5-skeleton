@@ -1,7 +1,7 @@
 
-//include "hashtable.h"
-//include <stdlib.h>
-//include <stdio.h>
+#include "hashtable.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 HashTable *createHashTable(int32_t size, uint64_t (*hashFunction)(void *),
                            int32_t (*equalFunction)(void *, void *)) {
