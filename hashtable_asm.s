@@ -57,7 +57,8 @@ createHashTable:
 	mov dword ptr [r15+28], 0 	#newTable->used = 0 | store as 32b register
 
 	mov eax, 8					#size of hashbucket pointer
-	mul r8						#hashbucket * size
+	mul r12d					#hashbucket * size
+	mov rdi, rax
 	mov esi, 1
 
 	call calloc
@@ -92,33 +93,35 @@ insertData:
 	mov r13, rsi				#(* key)
 	mov r14, rdx				#(* data)
 
-	#malloc space for newBucket
-	mov rdi, 24
-	call malloc
-	mov r15, rax					#r15 = newBucket
+	#calloc space for newBucket
+	mov edi, 24
+	mov esi, 1
+	call calloc
+	mov r15, rax					#r15 = * newBucket
 
 	#get hashFunction
-	mov r10, [r12]				#deref to get hashFunction
+	mov r10, [r12]					#deref to get hashFunction
 	
 	#get the key
-	mov rdi, [r13]					#get key pointer
+	# mov rdi, [r13]					#get key pointer
 	
 	#call hashFunction
 	call r10						#rax = hashFunction(key)
 
-	mov	r11d, [r12+24]				#r11 =  table->size
+	mov	r11d, [r12+24]				#r11d =  table->size
 	mov rdx, 0						#zero out upper bits
-	div r11d							#((table->hashFunction)(key)) % table->size
+	div r11d						#((table->hashFunction)(key)) % table->size
 	#remainder is in rdx || location = rdx
-	#both sides can't have brackets
-	mov r10, [r12+16]				#r10 = table->data
 
+	mov r10, [r12+16]				#r10 = table->data (the address)
 	mov r11, [r10+8*rdx]			#r11 = table->data[location]
-	mov [r15+16], r11			#newBucket -> next =table->data[location] 
 
-	mov [r15+8], r14			#newBucket -> data = data	
+	#	data is double pointer... so now it is *data[location]
 
-	mov [r15], r13				#newBucket -> key = key
+	mov [r15+16], r11				#newBucket -> next =table->data[location] 
+
+	mov [r15+8], r14				#newBucket -> data = data	
+	mov [r15], r13					#newBucket -> key = key
 
 	mov [r10+8*rdx], r15		#table->data[location] = newBucket
 
@@ -162,30 +165,30 @@ findData:
 									#remainder is in rdx || location = rdx
 
 #  struct HashBucket *lookAt = table->data[location];
-	mov r10, [r12+16]				#r11 = table->data
-	shl rdx, 3
-	add r10, rdx
-	mov r14, r10
-	# mov r14, [r10+8*rdx]			#lookAt = table->data[location]
+	mov r10, [r12+16]				#r10 = table->data
+	
+	# shl rdx, 3
+	# add r10, rdx
+	# mov r14, r10
+	mov r14, [r10+8*rdx]			#lookAt = table->data[location]
 
 while_start:
-	cmp r12, 0
+	cmp r14, 0
 	je while_end
 	mov rdi, r13					#arg1: key
-	mov rsi, [r14]				#arg2: lookAt->key : invalid read
-
-	#get equalFunction
-	#mov r10, [r12+8]				#r10 = equalFunction
+	mov rsi, [r14]					#arg2: lookAt->key : invalid read
+	# mov rsi, [rsi]					#arg2: lookAt->key : invalid read
 
 	#call equalFunction
-	call [r12+8]						#rax = equalFunction(key, lookAt->key)
+	call 	[r12+8]						#rax = equalFunction(key, lookAt->key)
 	#invalid read of size 1....
 
 	cmp rax, 0
-	cmovne rax, [r14+8]				#lookAt -> data
+	cmovne rax, [r14+8]				#retval = lookAt -> data
 	jne epilogue
 
 	mov r14, [r14+16]				#lookAt = lookAt -> next
+	jmp while_start
 while_end:
 	mov rax, 0
 epilogue:
@@ -195,5 +198,3 @@ epilogue:
 	
 	add rsp, 24
 	ret
-
-	
