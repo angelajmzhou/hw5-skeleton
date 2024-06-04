@@ -46,8 +46,8 @@ createHashTable:
 	mov r13, rsi				#(* hashFunction)
 	mov r14, rdx				#(* equalFunction)
 
-	mov rdi, 32 				#size of hashtable (arg1)
-	mov rsi, 1					#second arg (arg 2)
+	mov edi, 32 				#size of hashtable (arg1)
+	mov esi, 1					#second arg (arg 2)
 	call calloc
 	mov r15, rax				#hashtable *newTable = malloc(sizeof(HashTable))
 
@@ -56,10 +56,8 @@ createHashTable:
 	mov [r15+8], r14			#newTable->equalFunction = equalFunction;
 	mov dword ptr [r15+28], 0 	#newTable->used = 0 | store as 32b register
 
-	mov eax, 8					#size of hashbucket pointer
-	mul r12d					#hashbucket * size
-	mov rdi, rax
-	mov esi, 1
+	mov edi, r12d
+	mov esi, 8
 
 	call calloc
 	
@@ -99,17 +97,14 @@ insertData:
 	call calloc
 	mov r15, rax					#r15 = * newBucket
 
-	#get hashFunction
-	mov r10, [r12]					#deref to get hashFunction
-	
-	#get the key
-	# mov rdi, [r13]					#get key pointer
+	#move key into place
+	mov rsi, r13					
 	
 	#call hashFunction
-	call r10						#rax = hashFunction(key)
+	call [r12]						#rax = hashFunction(key)
 
 	mov	r11d, [r12+24]				#r11d =  table->size
-	mov rdx, 0						#zero out upper bits
+	mov edx, 0						#zero out upper bits
 	div r11d						#((table->hashFunction)(key)) % table->size
 	#remainder is in rdx || location = rdx
 
@@ -160,7 +155,7 @@ findData:
 
 	mov r11d, [r12+24]				#get table->size
 									#takes rax as parameter
-	mov rdx, 0
+	mov edx, 0
 	div r11d						#((table->hashFunction)(key)) % table->size
 									#remainder is in rdx || location = rdx
 
@@ -175,10 +170,9 @@ while_start:
 	je while_end
 	mov rdi, r13					#arg1: key
 	mov rsi, [r14]					#arg2: lookAt->key : invalid read
-	# mov rsi, [rsi]					#arg2: lookAt->key : invalid read
 
 	#call equalFunction
-	call 	[r12+8]						#rax = equalFunction(key, lookAt->key)
+	call 	[r12+8]					#rax = equalFunction(key, lookAt->key)
 
 	cmp rax, 0
 	cmovne rax, [r14+8]				#retval = lookAt -> data
