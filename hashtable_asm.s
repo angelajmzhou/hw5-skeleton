@@ -98,7 +98,7 @@ insertData:
 	mov r15, rax					#r15 = * newBucket
 
 	#move key into place
-	mov rsi, r13					
+	mov rdi, r13					
 	
 	#call hashFunction
 	call [r12]						#rax = hashFunction(key)
@@ -107,6 +107,7 @@ insertData:
 	mov edx, 0						#zero out upper bits
 	div r11d						#((table->hashFunction)(key)) % table->size
 	#remainder is in rdx || location = rdx
+	# good up to like here... 
 
 	mov r10, [r12+16]				#r10 = table->data (the address)
 	mov r11, [r10+8*rdx]			#r11 = table->data[location]
@@ -114,10 +115,10 @@ insertData:
 	#	data is double pointer... so now it is *data[location]
 
 	mov [r15+16], r11				#newBucket -> next =table->data[location] 
-
 	mov [r15+8], r14				#newBucket -> data = data	
 	mov [r15], r13					#newBucket -> key = key
 
+	mov r10, [r12+16]				#r10 = table->data (the address)
 	mov [r10+8*rdx], r15		#table->data[location] = newBucket
 
 	mov r9d, [r12+28]			#get hashTable->used
