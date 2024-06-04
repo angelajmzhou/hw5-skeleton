@@ -49,6 +49,7 @@ createHashTable:
 	mov edi, 32 				#size of hashtable (arg1)
 	mov esi, 1					#second arg (arg 2)
 	call calloc
+
 	mov r15, rax				#hashtable *newTable = malloc(sizeof(HashTable))
 
 	mov [r15+24], r12d 			#newTable->size = size
@@ -56,8 +57,8 @@ createHashTable:
 	mov [r15+8], r14			#newTable->equalFunction = equalFunction;
 	mov dword ptr [r15+28], 0 	#newTable->used = 0 | store as 32b register
 
-	mov edi, r12d
-	mov esi, 8
+	mov edi, r12d				#arg1: size
+	mov esi, 8					#arg2: bytes for each pointer
 
 	call calloc
 	
@@ -118,12 +119,11 @@ insertData:
 	mov [r15+8], r14				#newBucket -> data = data	
 	mov [r15], r13					#newBucket -> key = key
 
-	mov r10, [r12+16]				#r10 = table->data (the address)
 	mov [r10+8*rdx], r15		#table->data[location] = newBucket
 
 	mov r9d, [r12+28]			#get hashTable->used
 	add r9d, 1					#increment by 1
-	mov [r10+28], r9d			#update hashTable->used
+	mov [r12+28], r9d			#update hashTable->used
 
 	#restore registers
 	mov r12, [rsp]
